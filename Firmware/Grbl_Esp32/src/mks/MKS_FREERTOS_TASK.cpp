@@ -31,6 +31,12 @@ IRAM_ATTR void lvgl_disp_task(void *parg) {
 
     mks_draw_logo();
 
+    /*
+    *
+    * 20231202 Hoover: Apply English as the Default
+    */
+    set_language(1);
+
     // 创建二值量
     is_fram_need = xSemaphoreCreateBinary();
     frame_task_init();

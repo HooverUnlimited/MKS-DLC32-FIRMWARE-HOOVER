@@ -76,7 +76,7 @@ static uint8_t get_event(lv_obj_t* obj) {
  *	2------de
  *	3...
 */
-static void set_language(uint8_t language) {
+void set_language(uint8_t language) {
 
 	switch(language) {
 
@@ -169,7 +169,7 @@ static void event_handler(lv_obj_t* obj, lv_event_t event) {
 
 void draw_language(void) {
 
-	uint8_t language_num = 0;
+	uint8_t language_num = 1;
 
 	mks_global.mks_src_1 = lv_obj_create(mks_global.mks_src, NULL);
 	lv_obj_set_size(mks_global.mks_src_1, about_src1_x_size, about_src1_y_size);
@@ -184,6 +184,7 @@ void draw_language(void) {
 
 	language_num = language_select->get();
 
+	set_language(language_num);
 	set_language_btn_style(language_num);
 	
 	label_for_imgbtn_name(mks_global.mks_src, language_page.label_back, language_page.imgbtn_back, 0, 0, "back");

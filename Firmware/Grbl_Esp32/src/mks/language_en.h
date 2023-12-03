@@ -8,16 +8,16 @@
 
 /* 主页 */
 #define CONTROL_EN              "Control"           
-#define SCULPTURE_EN            "Sculpture"         
-#define TOOL_EN                 "Tool"          
-#define MPOS_EN                 "Mechanical coordinat"          
-#define WPOS_EN                 "Working coordinates"
-#define WIFI_CONNECT_EN   	    "Connect"
-#define WIFI_DISCONNECT_EN	    "Disconnect"
+#define SCULPTURE_EN            "Project"         
+#define TOOL_EN                 "Settings"          
+#define MPOS_EN                 "Mechanical XYZ"          
+#define WPOS_EN                 "Working XYZ"
+#define WIFI_CONNECT_EN   	    "Connected"
+#define WIFI_DISCONNECT_EN	    "Disconnected"
 
 /* 控制界面 */
-#define XY_CLEAR_EN             "XY_Clear"
-#define Z_CLEAR_EN              "Z_Clear"
+#define XY_CLEAR_EN             "XY Clr"
+#define Z_CLEAR_EN              "Z Clr"
 #define KNIFE_EN                "Knife"
 #define NEXT_EN                 "Next"
 #define UP_EN                   "Up"

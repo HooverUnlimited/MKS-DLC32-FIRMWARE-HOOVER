@@ -25,11 +25,9 @@ void setup() {
 }
 
 void loop() {
-  _mc_task_init();
+  _mc_task_init(); // This calls the start loop for MakerBase 
   
   while(1) {
-
     run_once();
-
   }
 }

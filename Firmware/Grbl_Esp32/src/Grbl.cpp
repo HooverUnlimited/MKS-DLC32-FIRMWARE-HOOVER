@@ -117,6 +117,12 @@ void reset_mc_config(void) {
 
 void _mc_task_init(void) {
 
+    /*
+    *
+    * 20231202 Hoover: This is the where the customization for MakerBase Begins  
+    * 
+    */
+   
     mks_grbl_parg_init();
     ts35_beep_init();
     bsp_led_init();

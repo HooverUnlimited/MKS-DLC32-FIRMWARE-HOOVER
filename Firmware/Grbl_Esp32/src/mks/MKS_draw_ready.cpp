@@ -185,10 +185,10 @@ void ready_data_updata(void) {
     
     #if defined(ENABLE_WIFI)
     if (mks_get_wifi_status() == false){
-        ready_src.ready_label_wifi_status = mks_lv_label_updata(ready_src.ready_label_wifi_status, "WIFI:Disconnect");
+        ready_src.ready_label_wifi_status = mks_lv_label_updata(ready_src.ready_label_wifi_status, mc_language.wifi_disconnect);
     }
     else {
-        ready_src.ready_label_wifi_status = mks_lv_label_updata(ready_src.ready_label_wifi_status, "WIFI:Connect");
+        ready_src.ready_label_wifi_status = mks_lv_label_updata(ready_src.ready_label_wifi_status, mc_language.wifi_connect);
     }
     #endif
 }
