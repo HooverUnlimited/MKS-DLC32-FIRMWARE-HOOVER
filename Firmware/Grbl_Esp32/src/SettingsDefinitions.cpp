@@ -20,12 +20,6 @@ AxisMaskSetting* homing_dir_mask;
 AxisMaskSetting* homing_squared_axes;
 AxisMaskSetting* stallguard_debug_mask;
 
-
-IntSetting* language_select;
-FlagSetting* beep_status; // mks-fix
-
-
-
 FlagSetting* step_enable_invert;
 FlagSetting* limit_invert;
 FlagSetting* probe_invert;
@@ -79,6 +73,7 @@ enum_opt_t spindleTypes = {
     { "BESC", int8_t(SpindleType::BESC) },
     { "10V", int8_t(SpindleType::_10V) },
     { "H2A", int8_t(SpindleType::H2A) },
+    { "YL620", int8_t(SpindleType::YL620) },
     // clang-format on
 };
 
@@ -340,9 +335,6 @@ void make_settings() {
         axis_settings[axis]->steps_per_mm = setting;
     }
 
-    language_select              = new IntSetting(GRBL, WG, "40", "Language", DEFAULT_LANGUAGE_STATUS, 0, 2);
-    beep_status                  = new FlagSetting(GRBL, WG, "38", "beep_status", DEFAULT_BEEP_STATUS);
-    
     // Spindle Settings
     spindle_type =
         new EnumSetting(NULL, EXTENDED, WG, NULL, "Spindle/Type", static_cast<int8_t>(SPINDLE_TYPE), &spindleTypes, checkSpindleChange);
@@ -354,7 +346,7 @@ void make_settings() {
     spindle_pwm_off_value = new FloatSetting(
         EXTENDED, WG, "34", "Spindle/PWM/Off", DEFAULT_SPINDLE_OFF_VALUE, 0.0, 100.0, checkSpindleChange);  // these are percentages
     // IntSetting spindle_pwm_bit_precision(EXTENDED, WG, "Spindle/PWM/Precision", DEFAULT_SPINDLE_BIT_PRECISION, 1, 16);
-    // spindle_pwm_freq = new FloatSetting(EXTENDED, WG, "33", "Spindle/PWM/Frequency", DEFAULT_SPINDLE_FREQ, 0, 100000, checkSpindleChange);
+    spindle_pwm_freq = new FloatSetting(EXTENDED, WG, "33", "Spindle/PWM/Frequency", DEFAULT_SPINDLE_FREQ, 0, 100000, checkSpindleChange);
     spindle_output_invert = new FlagSetting(GRBL, WG, NULL, "Spindle/PWM/Invert", DEFAULT_INVERT_SPINDLE_OUTPUT_PIN, checkSpindleChange);
 
     spindle_delay_spinup =
@@ -380,8 +372,6 @@ void make_settings() {
     rpm_min = new FloatSetting(GRBL, WG, "31", "GCode/MinS", DEFAULT_SPINDLE_RPM_MIN, 0, 100000, checkSpindleChange);
     rpm_max = new FloatSetting(GRBL, WG, "30", "GCode/MaxS", DEFAULT_SPINDLE_RPM_MAX, 0, 100000, checkSpindleChange);
 
-    spindle_pwm_freq = new FloatSetting(GRBL, WG, "28", "Spindle/PWM/Frequency", DEFAULT_SPINDLE_FREQ, 0, 100000, checkSpindleChange);  // (0-100k  100000)
-    
     homing_pulloff      = new FloatSetting(GRBL, WG, "27", "Homing/Pulloff", DEFAULT_HOMING_PULLOFF, 0, 1000);
     homing_debounce     = new FloatSetting(GRBL, WG, "26", "Homing/Debounce", DEFAULT_HOMING_DEBOUNCE_DELAY, 0, 10000);
     homing_seek_rate    = new FloatSetting(GRBL, WG, "25", "Homing/Seek", DEFAULT_HOMING_SEEK_RATE, 0, 10000);

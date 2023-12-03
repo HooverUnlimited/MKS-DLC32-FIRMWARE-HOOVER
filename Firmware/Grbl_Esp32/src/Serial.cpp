@@ -56,7 +56,6 @@
 */
 
 #include "Grbl.h"
-// #include "mks/lcd_serial.h"
 
 // Define this to use the Arduino serial (UART) driver instead
 // of the one in Uart.cpp, which uses the ESP-IDF UART driver.
@@ -100,7 +99,7 @@ void heapCheckTask(void* pvParameters) {
 void client_init() {
 #ifdef DEBUG_REPORT_HEAP_SIZE
     // For a 2000-word stack, uxTaskGetStackHighWaterMark reports 288 words available
-    xTaskCreatePinnedToCore(heapCheckTask, "ADC_WIDTH_10BiteapTask", 2000, NULL, 1, NULL, 1);
+    xTaskCreatePinnedToCore(heapCheckTask, "heapTask", 2000, NULL, 1, NULL, 1);
 #endif
 
 #ifdef REVERT_TO_ARDUINO_SERIAL
@@ -112,8 +111,7 @@ void client_init() {
     Uart0.begin(BAUD_RATE, Uart::Data::Bits8, Uart::Stop::Bits1, Uart::Parity::None);
 
     client_reset_read_buffer(CLIENT_ALL);
-    // Uart0.write("\r\n");  // create some white space after ESP32 boot info
-    Uart0.write("\n");  // create some white space after ESP32 boot info
+    Uart0.write("\r\n");  // create some white space after ESP32 boot info
 #endif
     clientCheckTaskHandle = 0;
     // create a task to check for incoming data
@@ -121,9 +119,9 @@ void client_init() {
     // after WebUI attaches.
     xTaskCreatePinnedToCore(clientCheckTask,    // task
                             "clientCheckTask",  // name for task
-                            4096*2,               // size of task stack
+                            8192,               // size of task stack
                             NULL,               // parameters
-                            3,                  // priority
+                            1,                  // priority
                             &clientCheckTaskHandle,
                             SUPPORT_TASK_CORE  // must run the task on same core
                                                // core
@@ -192,9 +190,6 @@ void clientCheckTask(void* pvParameters) {
                     if (data == '\r' || data == '\n') {
                         grbl_sendf(client, "error %d\r\n", Error::AnotherInterfaceBusy);
                         grbl_msg_sendf(client, MsgLevel::Info, "SD card job running");
-                        if(sys.state == State::Idle) {
-                            set_sd_state(SDState::Idle);
-                        }
                     }
                 }
 #endif  //ENABLE_SD_CARD
@@ -271,7 +266,7 @@ void execute_realtime_command(Cmd command, uint8_t client) {
         case Cmd::DebugReport:
 #ifdef DEBUG
             sys_rt_exec_debug = true;
-#endif.
+#endif
             break;
         case Cmd::SpindleOvrStop:
             sys_rt_exec_accessory_override.bit.spindleOvrStop = 1;
@@ -371,7 +366,7 @@ void client_write(uint8_t client, const char* text) {
         WebUI::telnet_server.write((const uint8_t*)text, strlen(text));
     }
 #endif
-    if (client == CLIENT_SERIAL || client == CLIENT_ALL || client == CLIENT_LCD) {
+    if (client == CLIENT_SERIAL || client == CLIENT_ALL) {
 #ifdef REVERT_TO_ARDUINO_SERIAL
         Serial.write(text);
 #else
@@ -380,13 +375,18 @@ void client_write(uint8_t client, const char* text) {
     }
 }
 
+/*
+*
+* 20231203 Hoover: Have to leave this here for now. It eventually needs to be moved away.
+*
+*/
 
-void serila_write_into_buffer(uint8_t *data) {
+void mks_serial_write_into_buffer(uint8_t *data) {
 
     WebUI::inputBuffer.push((const char *)data);
 }
 
-void serial_web_input_into_buffer(uint8_t *data) { 
+void mks_serial_web_input_into_buffer(uint8_t *data) { 
 
     uint16_t k=0;
     do{
@@ -396,7 +396,7 @@ void serial_web_input_into_buffer(uint8_t *data) {
     // client_write(CLIENT_SERIAL, (char *)data);
 }
 
-void serial_web_input_into_hex(uint8_t c) { 
+void mks_serial_web_input_into_hex(uint8_t c) { 
     client_buffer[CLIENT_SERIAL].write(c);
 
     // client_write(CLIENT_SERIAL, (char *)&c);

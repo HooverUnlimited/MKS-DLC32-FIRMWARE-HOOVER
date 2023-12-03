@@ -1,7 +1,6 @@
 #include "MKS_draw_wifi.h"
 #include "../WebUI/WifiConfig.h"
 
-
 #if defined(ENABLE_WIFI)
 static lv_style_t btn_press_style;
 static lv_style_t line_style;
@@ -595,7 +594,7 @@ void mks_wifi_connect(char *username, char *password) {
     //     wifi_src.wifi_kb_flag = wifi_kb_none_flag;
     // }
     if(wifi_src.wifi_kb_flag == wifi_kb_send_wifi_username) {
-        WebUI::wifi_sta_ssid->mks_setStringValue(username);
+        WebUI::wifi_sta_ssid->setStringValue(username);
         grbl_send(CLIENT_SERIAL, username);
         w_cont = W_CON_NUM;
         wifi_src.wifi_kb_flag = wifi_kb_send_wifi_password;// wifi_kb_send_wifi_STA_mode;
@@ -603,7 +602,7 @@ void mks_wifi_connect(char *username, char *password) {
     else if(wifi_src.wifi_kb_flag == wifi_kb_send_wifi_password) {
         w_cont--;
         if(w_cont == 0) {
-            WebUI::wifi_sta_password->mks_setStringValue(password);
+            WebUI::wifi_sta_password->setStringValue(password);
             w_cont = W_CON_NUM;
             wifi_src.wifi_kb_flag = wifi_kb_send_wifi_STA_mode;// wifi_kb_send_wifi_connect;
         }
@@ -627,7 +626,7 @@ void mks_wifi_connect(char *username, char *password) {
     else if(wifi_src.wifi_kb_flag == wifi_kb_send_wifi_connect) {
          w_cont--;
          if(w_cont == 0) {
-            WebUI::wifi_config.mks_setup();
+            //WebUI::wifi_config.mks_setup();
             wifi_src.wifi_kb_flag = wifi_kb_none_flag;
             w_cont = 0;
          }

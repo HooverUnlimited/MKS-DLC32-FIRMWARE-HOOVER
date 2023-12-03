@@ -1,4 +1,3 @@
-
 #ifndef __mks_sdcard_h
 #define __mks_sdcard_h
 
@@ -7,7 +6,7 @@
 #include "SD.h"
 #include "SPI.h"
 
-#define FILE_SD_BUF			128
+#define FILE_SD_BUF	128
 
 class SdCard
 {

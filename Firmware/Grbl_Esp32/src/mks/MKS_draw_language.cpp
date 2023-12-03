@@ -169,7 +169,7 @@ static void event_handler(lv_obj_t* obj, lv_event_t event) {
 
 void draw_language(void) {
 
-	uint8_t language_num = 1;
+	uint8_t language_num = DEFAULT_LANGUAGE_STATUS;
 
 	mks_global.mks_src_1 = lv_obj_create(mks_global.mks_src, NULL);
 	lv_obj_set_size(mks_global.mks_src_1, about_src1_x_size, about_src1_y_size);
@@ -181,8 +181,6 @@ void draw_language(void) {
 	language_page.imgbtn_back = lv_imgbtn_creat_mks(mks_global.mks_src_1, language_page.imgbtn_back, &png_back_pre, &back, LV_ALIGN_IN_LEFT_MID, 10, -15, event_handler);
 	language_page.imgbtn_simple_cn = mks_lv_btn_set(mks_global.mks_src, language_page.imgbtn_simple_cn, 130, 50, 20, 110, event_handler);
 	language_page.imgbtn_en = mks_lv_btn_set(mks_global.mks_src, language_page.imgbtn_en, 130, 50, 20, 110 + 60, event_handler);
-
-	language_num = language_select->get();
 
 	set_language(language_num);
 	set_language_btn_style(language_num);

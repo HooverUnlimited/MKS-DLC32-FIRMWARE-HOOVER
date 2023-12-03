@@ -1,7 +1,4 @@
 #include "MKS_draw_carving.h"
-#include "MKS_LVGL.h"
-#include "FS.h"
-#include "../SDCard.h"
 
  /* Screan Build */
 // static lv_obj_t* scr;
@@ -102,7 +99,10 @@ static void event_handler_up(lv_obj_t* obj, lv_event_t event) {
 				// mks_del_file_obj_1(mks_file_list.file_begin_num);
 				mks_del_file_obj();
 				mks_file_list.file_begin_num = 0;
-				mks_listDir(SD, "/",MKS_FILE_DEEP);
+				
+				// Hoover: Maybe this is why the SD Doesn't work?
+				mks_list_dir(SD, "/", MKS_FILE_DEEP);
+				
 				// draw_file_btmimg();
 				// draw_file_btmimg_1(mks_file_list.file_begin_num);
 				// lv_obj_del(caving_read_file_src1);
@@ -131,7 +131,7 @@ static void event_handler_next(lv_obj_t* obj, lv_event_t event) {
 					// lv_refr_now(lv_refr_get_disp_refreshing());
 					mks_del_file_obj();
 					mks_file_list.file_begin_num = 0;
-					mks_listDir(SD, "/",MKS_FILE_DEEP);
+					mks_list_dir(SD, "/",MKS_FILE_DEEP);
 					// draw_file_btmimg();
 					// lv_obj_del(caving_read_file_src1);
 					SD.end();
@@ -324,7 +324,7 @@ void mks_draw_craving(void) {
 		mks_file_list.file_page = 1;
 		mks_grbl.mks_sd_status = 1; // sd had inserted
 
-		mks_listDir(SD, "/",MKS_FILE_DEEP);
+		mks_list_dir(SD, "/",MKS_FILE_DEEP);
 		SD.end();
 	}	
 	mks_ui_page.mks_ui_page = MKS_UI_Caving;

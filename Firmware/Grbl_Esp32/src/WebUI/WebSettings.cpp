@@ -163,7 +163,6 @@ namespace WebUI {
 }
 
 Error WebCommand::action(char* value, WebUI::AuthenticationLevel auth_level, WebUI::ESPResponseStream* out) {
-    
     if (_cmdChecker && _cmdChecker()) {
         return Error::AnotherInterfaceBusy;
     }
@@ -427,8 +426,6 @@ namespace WebUI {
         webPrintln("CPU Temperature: ", String(temperatureRead(), 1) + "C");
         webPrintln("Free memory: ", ESPResponseStream::formatBytes(ESP.getFreeHeap()));
         webPrintln("SDK: ", ESP.getSdkVersion());
-        webPrintln("Board Version: ", "DLC32 V003"); // mks fix
-        webPrintln("Firmware: ", "DLC32 V1.10C"); // mks fix
         webPrintln("Flash Size: ", ESPResponseStream::formatBytes(ESP.getFlashChipSize()));
 
         // Round baudRate to nearest 100 because ESP32 can say e.g. 115201
@@ -788,7 +785,6 @@ namespace WebUI {
 
     static Error listSDFiles(char* parameter, AuthenticationLevel auth_level) {  // ESP210
         SDState state = get_sd_state(true);
-
         if (state != SDState::Idle) {
             if (state == SDState::NotPresent) {
                 webPrintln("No SD Card");
@@ -798,7 +794,6 @@ namespace WebUI {
                 return Error::FsFailedBusy;
             }
         }
-        
         webPrintln("");
         listDir(SD, "/", 10, espresponse->client());
         String ssd = "[SD Free:" + ESPResponseStream::formatBytes(SD.totalBytes() - SD.usedBytes());

@@ -259,7 +259,6 @@ static void transform_cartesian_to_motors(float* motors, float* cartesian) {
     motors[Y_AXIS] = geometry_factor * cartesian[X_AXIS] - cartesian[Y_AXIS];
 
     auto n_axis = number_axis->get();
-
     for (uint8_t axis = Z_AXIS; axis <= n_axis; axis++) {
         motors[axis] = cartesian[axis];
     }
@@ -311,11 +310,6 @@ bool kinematics_pre_homing(uint8_t cycle_mask) {
 void kinematics_post_homing() {
     auto n_axis = number_axis->get();
     memcpy(gc_state.position, last_cartesian, n_axis * sizeof(last_cartesian[0]));
-}
-
-// this is used used by Limits.cpp to see if the range of the machine is exceeded.
-bool limitsCheckTravel(float* target) {
-    return false;
 }
 
 void user_m30() {}

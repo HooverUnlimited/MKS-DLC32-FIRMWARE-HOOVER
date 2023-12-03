@@ -8,11 +8,9 @@
 #include "../Serial.h"
 #include "MKS_SDCard.h"
 
-
-#define MKS_GRBL_CMD_SEND(A)            serila_write_into_buffer((uint8_t *)A)   
-
-#define MKS_GRBL_WEB_CMD_SEND(A)        serial_web_input_into_buffer((uint8_t *)A)
-#define MKS_GRBL_WEB_HEX_CMD_SEND(A)    serial_web_input_into_hex(A)
+#define MKS_GRBL_CMD_SEND(A)            mks_serial_write_into_buffer((uint8_t *)A)   
+#define MKS_GRBL_WEB_CMD_SEND(A)        mks_serial_web_input_into_buffer((uint8_t *)A)
+#define MKS_GRBL_WEB_HEX_CMD_SEND(A)    mks_serial_web_input_into_hex(A)
 
 typedef enum {
     M_0_1_MM,           // move 0.1mm
@@ -118,12 +116,14 @@ typedef struct {
 }LVGL_UI_PAGE_t;
 extern LVGL_UI_PAGE_t mks_ui_page;
 
-
-
-
 void mks_lvgl_init(void);
 void lvgl_test(void);
 SDState mks_readSD_Status(void);
 float mks_caving_persen(void);
 void mks_grbl_parg_init(void);
+void mks_list_dir(fs::FS& fs, const char* dirname, uint8_t levels);
+bool mks_filename_check(char *str, uint16_t num);
+void mks_serial_write_into_buffer(uint8_t *data);
+void mks_serial_web_input_into_buffer(uint8_t *data);
+void mks_serial_web_input_into_hex(uint8_t c);
 #endif

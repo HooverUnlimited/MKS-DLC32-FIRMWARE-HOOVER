@@ -1,7 +1,4 @@
 #include "MKS_ctrl.h"
-#include "../WebUI/WebSettings.h"
-#include "../WebUI/WifiConfig.h"
-#include "string.h"
 
 mks_spindle_t mks_spindle;
 void spindle_check_init(void) { 

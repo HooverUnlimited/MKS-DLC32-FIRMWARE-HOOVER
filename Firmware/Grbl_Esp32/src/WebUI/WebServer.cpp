@@ -158,7 +158,7 @@ namespace WebUI {
 #    ifdef ENABLE_SD_CARD
         //Direct SD management
         _webserver->on("/upload", HTTP_ANY, handle_direct_SDFileList, SDFile_direct_upload);
-        // _webserver->on("/SD", HTTP_ANY, handle_SDCARD);
+        //_webserver->on("/SD", HTTP_ANY, handle_SDCARD);
 #    endif
 
 #    ifdef ENABLE_CAPTIVE_PORTAL
@@ -246,8 +246,8 @@ namespace WebUI {
         String contentType = getContentType(path);
         String pathWithGz  = path + ".gz";
         //if have a index.html or gzip version this is default root page
-        if ((SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) && !_webserver->hasArg("index") &&  // forcefallback
-            _webserver->arg("index") != "yes") {
+        if ((SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) && !_webserver->hasArg("forcefallback") &&
+            _webserver->arg("forcefallback") != "yes") {
             if (SPIFFS.exists(pathWithGz)) {
                 path = pathWithGz;
             }
@@ -1572,7 +1572,6 @@ namespace WebUI {
         switch (type) {
             case WStype_DISCONNECTED:
                 //USE_SERIAL.printf("[%u] Disconnected!\n", num);
-                grbl_send(CLIENT_SERIAL , "WebUI Disconnected!\n");
                 break;
             case WStype_CONNECTED: {
                 IPAddress ip = _socket_server->remoteIP(num);
@@ -1583,8 +1582,6 @@ namespace WebUI {
                 _socket_server->sendTXT(_id_connection, s);
                 s = "ACTIVE_ID:" + String(_id_connection);
                 _socket_server->broadcastTXT(s);
-
-                grbl_send(CLIENT_SERIAL , "WebUI connected!\n");
             } break;
             case WStype_TEXT:
                 //USE_SERIAL.printf("[%u] get Text: %s\n", num, payload);

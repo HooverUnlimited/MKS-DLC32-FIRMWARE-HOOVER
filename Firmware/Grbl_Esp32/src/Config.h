@@ -48,7 +48,7 @@ Some features should not be changed. See notes below.
 
 // Note: HOMING_CYCLES are now settings
 #define SUPPORT_TASK_CORE 1  // Reference: CONFIG_ARDUINO_RUNNING_CORE = 1
-#define SUPPORT_LVGL_CORE 0  // Reference: CONFIG_ARDUINO_RUNNING_CORE = 0
+
 // Inverts pin logic of the control command pins based on a mask. This essentially means you can use
 // normally-closed switches on the specified pins, rather than the default normally-open switches.
 // The mask order is ...
@@ -96,23 +96,23 @@ const int MAX_N_AXIS = 6;
 //#define CONNECT_TO_SSID  "your SSID"
 //#define SSID_PASSWORD  "your SSID password"
 //CONFIGURE_EYECATCH_BEGIN (DO NOT MODIFY THIS LINE)
-// #define ENABLE_BLUETOOTH  // enable bluetooth
+#define ENABLE_BLUETOOTH  // enable bluetooth
 
-#define ENABLE_SD_CARD                  /* enable use of SD Card to run jobs        */ 
-#define ENABLE_WIFI                     /* enable wifi                              */
-#define ENABLE_LCD                      /* enable TS35 LCD for LVGL @ 6.12          */
+#define ENABLE_SD_CARD  // enable use of SD Card to run jobs
+
+#define ENABLE_WIFI  //enable wifi
 
 #if defined(ENABLE_WIFI) || defined(ENABLE_BLUETOOTH)
 #    define WIFI_OR_BLUETOOTH
 #endif
 
-#define ENABLE_HTTP                     /* enable HTTP and all related services              */                   
-// #define ENABLE_OTA                   /* enable OTA                                        */
-#define ENABLE_TELNET                   /* enable telnet                                     */
-#define ENABLE_TELNET_WELCOME_MSG       /* display welcome string when connect to telnet     */                           
-// #define ENABLE_MDNS                  /* enable mDNS discovery                             */   
-// #define ENABLE_SSDP                  /* enable UPNP discovery                             */   
-// #define ENABLE_NOTIFICATIONS         /* enable notifications                              */   
+#define ENABLE_HTTP                //enable HTTP and all related services
+#define ENABLE_OTA                 //enable OTA
+#define ENABLE_TELNET              //enable telnet
+#define ENABLE_TELNET_WELCOME_MSG  //display welcome string when connect to telnet
+#define ENABLE_MDNS                //enable mDNS discovery
+#define ENABLE_SSDP                //enable UPNP discovery
+#define ENABLE_NOTIFICATIONS       //enable notifications
 
 #define ENABLE_SERIAL2SOCKET_IN
 #define ENABLE_SERIAL2SOCKET_OUT
@@ -355,8 +355,8 @@ const int REPORT_WCO_REFRESH_IDLE_COUNT = 10;  // (2-255) Must be less than or e
 // NOTE: Changing this value also changes the execution time of a segment in the step segment buffer.
 // When increasing this value, this stores less overall time in the segment buffer and vice versa. Make
 // certain the step segment buffer is increased/decreased to account for these changes.
-// const int ACCELERATION_TICKS_PER_SECOND = 100;
 const int ACCELERATION_TICKS_PER_SECOND = 100;
+
 // Sets the maximum step rate allowed to be written as a Grbl setting. This option enables an error
 // check in the settings module to prevent settings values that will exceed this limitation. The maximum
 // step rate is strictly limited by the CPU speed and will change if something other than an AVR running

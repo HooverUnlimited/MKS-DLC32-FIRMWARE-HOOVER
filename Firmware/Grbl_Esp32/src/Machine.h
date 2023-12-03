@@ -5,12 +5,21 @@
 
 #ifndef MACHINE_FILENAME
 
-#ifdef MACHINE_TYPE_DEFAULT
-    #include "Machines/hoover_TTC_450.h"
-    // #include "Machines/i2s_out_xyz_mks_dlc32.h"
-#else
-    #include "Machines/i2s_out_corexy_mks_dlc32.h"
-#endif
+// !!! For initial testing, start with test_drive.h which disables
+// all I/O pins
+// #include "Machines/atari_1020.h"
+//#    include "Machines/test_drive.h"
+
+// !!! For actual use, change the line above to select a board
+// from Machines/, for example:
+// #include "Machines/3axis_v4.h"
+
+#include "Machines/hoover_TTC_450.h"
+
+// === OEM Single File Configuration Option
+// OEMs that wish to publish source code that is configured for a
+// specific machine may put all of their configuration definitions
+// directly in this file, without including any other file above.
 
 #else
 

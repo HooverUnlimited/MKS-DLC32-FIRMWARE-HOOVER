@@ -20,7 +20,7 @@ void ts35_beep_init() {
 }
 
 void ts35_beep_on(void) {
-    if(beep_status->get()) digitalWrite(BEEPER, HIGH);
+    if(DEFAULT_BEEP_STATUS) digitalWrite(BEEPER, HIGH);
 }
 
 void ts35_beep_off(void) {

@@ -104,9 +104,7 @@ void my_print(lv_log_level_t level, const char * file, uint32_t line, const char
 
 void mks_grbl_parg_init(void) {
 
-    if(language_select->get() == 0) mks_grbl.language = SimpleChinese;
-    else if(language_select->get() == 1) mks_grbl.language = English;
-    else if(language_select->get() == 1) mks_grbl.language = Deutsch;
+    mks_grbl.language = English;
     
     mks_grbl.light_status = GRBL_Light_Off;
     mks_grbl.move_dis = M_10_MM;
@@ -166,4 +164,73 @@ SDState mks_readSD_Status(void) {
 
 float mks_caving_persen(void) { 
     return sd_report_perc_complete();
+}
+
+
+char mks_filename_check_str[255];
+void mks_list_dir(fs::FS& fs, const char* dirname, uint8_t levels) { 
+
+    File root = fs.open(dirname);    //建立文件根目录并打开文件系统
+
+    // root 为空时判断为文件系统打开失败
+    if(!root) {
+        //...提示文件系统打开失败
+        return;
+    }
+
+    if (!root.isDirectory()) {
+        // ...找不到文件夹（根文件夹）
+        return;
+    }
+    File file = root.openNextFile(); 
+    
+    while(file) {
+
+        if (file.isDirectory()) {
+            if (levels) {
+                mks_list_dir(fs, file.name(), levels - 1);
+            }
+        } else {
+
+            memcpy(mks_filename_check_str, file.name(), 255);
+            strcpy(mks_filename_check_str, file.name());
+
+            if(mks_filename_check(mks_filename_check_str, strlen(mks_filename_check_str)) == true) {
+                if((mks_file_list.file_count >= ((mks_file_list.file_page * MKS_FILE_NUM)-(MKS_FILE_NUM))) 
+                    && (mks_file_list.file_count < (mks_file_list.file_page * MKS_FILE_NUM))) {
+                    memset(mks_file_list.filename_str[mks_file_list.file_begin_num], 0, sizeof(mks_file_list.filename_str[mks_file_list.file_begin_num]));
+                    strcpy(mks_file_list.filename_str[mks_file_list.file_begin_num], mks_filename_check_str);
+                    mks_file_list.file_size[mks_file_list.file_begin_num] = file.size();
+                    draw_filexx(mks_file_list.file_begin_num, mks_file_list.filename_str[mks_file_list.file_begin_num]);
+                    mks_file_list.file_begin_num++;
+                }
+                mks_file_list.file_count++;
+                if(mks_file_list.file_count >= (mks_file_list.file_page * MKS_FILE_NUM)) return;
+            }
+        }
+        file =  root.openNextFile();
+    }
+}
+
+bool mks_filename_check(char *str, uint16_t num) {
+
+    char *p, *j, *k;
+    
+    if(num > 128) return false;
+    // if(((str[num-1]=='c')||(str[num-1]='C')) && ((str[num-2] == 'n')||(str[num-2] == 'N'))) return true;  // .nc
+
+    p = strstr(str, ".nc");
+    if(p == NULL) p = strstr(str, ".NC");
+    else return true;
+        
+    j = strstr(str, ".gcode");
+    if(j == NULL) j = strstr(str, ".GCODE");
+    else return true;
+
+    k = strstr(str, ".gc");
+    if(k == NULL) k = strstr(str, ".GC");
+    else return true;
+
+    if((p!=NULL) || (j!=NULL) || (k!=NULL)) return true;
+    else return false;
 }

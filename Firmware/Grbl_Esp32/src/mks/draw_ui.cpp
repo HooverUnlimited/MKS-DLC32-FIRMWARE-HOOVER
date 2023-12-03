@@ -65,10 +65,3 @@ void mks_global_style_init(void) {
     mks_global.mks_test_style.text.font = &lv_font_roboto_28;
     mks_global.mks_test_style.text.color = LV_COLOR_WHITE;
 }
-
-
-
-
-
-
-

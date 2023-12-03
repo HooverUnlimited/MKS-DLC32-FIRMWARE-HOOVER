@@ -23,7 +23,6 @@
 */
 
 #include "Grbl.h"
-#include "mks/MKS_draw_lvgl.h"
 
 // M_PI is not defined in standard C/C++ but some compilers
 // support it anyway.  The following suppresses Intellisense
@@ -46,18 +45,7 @@ bool mc_line(float* target, plan_line_data_t* pl_data) {
     bool submitted_result = false;
     // store the plan data so it can be cancelled by the protocol system if needed
     sys_pl_data_inflight = pl_data;
-    // If enabled, check for soft limit violations. Placed here all line motions are picked up
-    // from everywhere in Grbl.
-    if (soft_limits->get()) {
-        // NOTE: Block jog state. Jogging is a special case and soft limits are handled independently.
-        // if (sys.state != State::Jog) {
-        //     limits_soft_check(target);
-        // }  // mks_fix
 
-        if((sys.state != State::Jog) && (mks_ui_page.mks_ui_page != MKS_UI_Pring)) {
-            limits_soft_check(target);
-        }
-    }
     // If in check gcode mode, prevent motion by blocking planner. Soft limits still work.
     if (sys.state == State::CheckMode) {
         sys_pl_data_inflight = NULL;
@@ -227,6 +215,7 @@ void mc_arc(float*            target,
             position[axis_1] = center_axis1 + r_axis1;
             position[axis_linear] += linear_per_segment;
             pl_data->feed_rate = original_feedrate;  // This restores the feedrate kinematics may have altered
+            limitsCheckSoft(position);
             cartesian_to_motors(position, pl_data, previous_position);
             previous_position[axis_0]      = position[axis_0];
             previous_position[axis_1]      = position[axis_1];
@@ -238,6 +227,7 @@ void mc_arc(float*            target,
         }
     }
     // Ensure last segment arrives at target location.
+    limitsCheckSoft(target);
     cartesian_to_motors(target, pl_data, previous_position);
 }
 
@@ -367,26 +357,21 @@ void mc_homing_cycle(uint8_t cycle_mask) {
                 }
             }
         }
-
         if (no_cycles_defined) {
             report_status_message(Error::HomingNoCycles, CLIENT_ALL);
         }
     }
-
     protocol_execute_realtime();  // Check for reset and set system abort.
-
-    if (sys.abort) { return;  // Did not complete. Alarm state set by mc_alarm.
+    if (sys.abort) {
+        return;  // Did not complete. Alarm state set by mc_alarm.
     }
     // Homing cycle complete! Setup system for normal operation.
     // -------------------------------------------------------------------------------------
     // Sync gcode parser and planner positions to homed position.
     gc_sync_position();
-
     plan_sync_position();
-
     // This give kinematics a chance to do something after normal homing
     kinematics_post_homing();
-
     // If hard limits feature enabled, re-enable hard limits pin change register after homing cycle.
     limits_init();
 }
@@ -404,7 +389,6 @@ GCUpdatePos mc_probe_cycle(float* target, plan_line_data_t* pl_data, uint8_t par
     }
     // Finish all queued commands and empty planner buffer before starting probe cycle.
     protocol_buffer_synchronize();
-    
     if (sys.abort) {
         return GCUpdatePos::None;  // Return if system reset has been issued.
     }
@@ -430,6 +414,7 @@ GCUpdatePos mc_probe_cycle(float* target, plan_line_data_t* pl_data, uint8_t par
     }
     // Setup and queue probing motion. Auto cycle-start should not start the cycle.
     grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "Found");
+    limitsCheckSoft(target);
     cartesian_to_motors(target, pl_data, gc_state.position);
     // Activate the probing state monitor in the stepper module.
     sys_probe_state = Probe::Active;
@@ -445,21 +430,16 @@ GCUpdatePos mc_probe_cycle(float* target, plan_line_data_t* pl_data, uint8_t par
 
     // Switch the stepper mode to the previous mode
     RESTORE_STEPPER(save_stepper);
-    
+
     // Probing cycle complete!
     // Set state variables and error out, if the probe failed and cycle with error is enabled.
     if (sys_probe_state == Probe::Active) {
         if (is_no_error) {
-            grbl_send(CLIENT_WEBUI, "Probe cycle succeed\n");
             memcpy(sys_probe_position, sys_position, sizeof(sys_position));
         } else {
-            probe_run.flag = 2;
-            grbl_send(CLIENT_WEBUI, "Probe cycle fail\n");
             sys_rt_exec_alarm = ExecAlarm::ProbeFailContact;
         }
     } else {
-        probe_run.flag = 1;
-        grbl_send(CLIENT_WEBUI, "Probe cycle succeed\n");
         sys.probe_succeeded = true;  // Indicate to system the probing cycle completed successfully.
     }
     sys_probe_state = Probe::Off;  // Ensure probe state monitor is disabled.
@@ -473,10 +453,8 @@ GCUpdatePos mc_probe_cycle(float* target, plan_line_data_t* pl_data, uint8_t par
     report_probe_parameters(CLIENT_ALL);
 #endif
     if (sys.probe_succeeded) {
-        // grbl_send(CLIENT_WEBUI, "Probe cycle succeed\n");
         return GCUpdatePos::System;  // Successful probe cycle.
     } else {
-        // grbl_send(CLIENT_WEBUI, "Probe cycle fail\n");
         return GCUpdatePos::Target;  // Failed to trigger probe within travel. With or without error.
     }
 }

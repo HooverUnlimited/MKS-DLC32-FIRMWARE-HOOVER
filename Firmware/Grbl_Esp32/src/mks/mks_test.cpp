@@ -20,7 +20,14 @@ static void event_handler_test(lv_obj_t* obj, lv_event_t event) {
 	if (event == LV_EVENT_RELEASED) {
         mks_lv_clean_ui();
         mks_ui_page.mks_ui_page = MKS_UI_PAGE_LOADING;
-        phy_init_reinit();
+        // Replaced:
+        //phy_init_reinit();
+        // With:
+        coolant_init();
+        limits_init();
+        probe_init();
+        // End
+
         MKS_GRBL_CMD_SEND("M5\n");
         lv_obj_set_style(mks_global.mks_src ,&mks_global.mks_src_style);
         mks_grbl.is_test_mode = false;

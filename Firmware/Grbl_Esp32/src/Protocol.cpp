@@ -23,10 +23,6 @@
 */
 
 #include "Grbl.h"
-#include "mks/MKS_TS35.h"
-#include "lvgl.h"
-#include "mks/MKS_draw_print.h"
-#include "mks/MKS_draw_wifi.h"
 
 static void protocol_exec_rt_suspend();
 
@@ -107,10 +103,6 @@ bool can_park() {
   GRBL PRIMARY LOOP:
 */
 void protocol_main_loop() {
-
-    static bool first_restart = true;
-    uint16_t re_cmd[] = {0x18}; // 复位命令
-
     client_reset_read_buffer(CLIENT_ALL);
     empty_lines();
     //uint8_t client = CLIENT_SERIAL; // default client
@@ -131,7 +123,7 @@ void protocol_main_loop() {
         sys.state = State::Alarm;  // Ensure alarm state is set.
     } else {
         // Check if the safety door is open.
-        sys.state = State::Idle; 
+        sys.state = State::Idle;
         if (system_check_safety_door_ajar()) {
             sys_rt_exec_state.bit.safetyDoor = true;
             protocol_execute_realtime();  // Enter safety door mode. Should return as IDLE state.
@@ -143,86 +135,21 @@ void protocol_main_loop() {
     // Primary loop! Upon a system abort, this exits back to main() to reset the system.
     // This is also where Grbl idles while waiting for something to do.
     // ---------------------------------------------------------------------------------
-    MKS_GRBL_CMD_SEND("$x\n");   // 主动解锁
-
-    if(first_restart == true) {
-      MKS_GRBL_CMD_SEND(re_cmd);  
-      first_restart = false; 
-    }
-    
     int c;
-    bool is_need_next = false;
     for (;;) {
-#if 1
-#ifdef ENABLE_SD_CARD
-        if (SD_ready_next) {
-            char fileLine[255];
-                if (readFileLine(fileLine, 255)) {
-                    SD_ready_next = false;
-                    report_status_message(execute_line(fileLine, SD_client, SD_auth_level), SD_client);
-                } 
-                else {
-                    if(mks_grbl.carve_times != 0) mks_grbl.carve_times--;
-
-                    if(mks_grbl.carve_times > 0) {
-                        setFilePos(0);
-                        grbl_sendf(CLIENT_SERIAL , "times:%d\n", mks_grbl.carve_times);
-                    }else {
-                        char temp[50];
-                        sd_get_current_filename(temp);
-                        if (mks_grbl.is_mks_ts35_flag == true) { 
-                            mks_ui_page.mks_ui_page = MKS_UI_PAGE_LOADING;
-                            mks_ui_page.wait_count = DEFAULT_UI_COUNT;
-                            mks_draw_finsh_pupop(); // show print finsh 
-                        }
-                        grbl_notifyf("SD print done", "%s print is successful", temp);
-                        grbl_send(CLIENT_ALL, "SD Print Finish!\n");
-                        // MKS_GRBL_CMD_SEND("G0 X0 Y0 Z0 F300\n");
-
-                        sys_rt_f_override                    = FeedOverride::Default;
-                        sys_rt_r_override                    = RapidOverride::Default;
-                        sys_rt_s_override                    = SpindleSpeedOverride::Default;
-
-                        closeFile();  // close file and clear SD ready/running flags
-                    }
-                }
-        }
-#endif
-#else
 #ifdef ENABLE_SD_CARD
         if (SD_ready_next) {
             char fileLine[255];
             if (readFileLine(fileLine, 255)) {
-                if (is_rb_empty(&rb_sd) == true) {
-                    rb_write(&rb_sd, fileLine);
-                }
                 SD_ready_next = false;
-                rb_read(&rb_sd, fileLine);
                 report_status_message(execute_line(fileLine, SD_client, SD_auth_level), SD_client);
-            } 
-            else {
+            } else {
                 char temp[50];
                 sd_get_current_filename(temp);
-                if (mks_grbl.is_mks_ts35_flag == true) { 
-                    mks_ui_page.mks_ui_page = MKS_UI_PAGE_LOADING;
-                    mks_ui_page.wait_count = DEFAULT_UI_COUNT;
-                    mks_draw_finsh_pupop(); // show print finsh 
-                }
                 grbl_notifyf("SD print done", "%s print is successful", temp);
                 closeFile();  // close file and clear SD ready/running flags
             }
         }
-        else {
-                if((sys.state == State::Cycle)) {  
-                    if(is_rb_full(&rb_sd) == false) {
-                        char fileLine[255];
-                        if (readFileLine(fileLine, 255)) {
-                            rb_write(&rb_sd, fileLine);
-                        }
-                    }
-                }
-        }
-#endif
 #endif
         // Receive one line of incoming serial data, as the data becomes available.
         // Filtering, if necessary, is done later in gc_execute_line(), so the
@@ -267,19 +194,9 @@ void protocol_main_loop() {
         }
         // check to see if we should disable the stepper drivers ... esp32 work around for disable in main loop.
         if (stepper_idle && stepper_idle_lock_time->get() != 0xff) {
-            
-            if((sys.state != State::Cycle) || (sys.state != State::Hold)) {
-
-                if (esp_timer_get_time() > stepper_idle_counter) {
-                    motors_set_disable(true);
-                }
+            if (esp_timer_get_time() > stepper_idle_counter) {
+                motors_set_disable(true);
             }
-        }
-        // spindle_check();
-        if(mks_ui_page.mks_ui_page == MKS_UI_Wifi) {   
-            #if defined(ENABLE_WIFI)
-            mks_wifi_connect(wifi_send_username, wifi_send_password);   // 扫描wifi是否需要被发送指令连接
-            #endif
         }
     }
     return; /* Never reached */
@@ -341,32 +258,15 @@ void protocol_exec_rt_system() {
         report_alarm_message(alarm);
         // Halt everything upon a critical event flag. Currently hard and soft limits flag this.
         if ((alarm == ExecAlarm::HardLimit) || (alarm == ExecAlarm::SoftLimit)) {
-            // report_feedback_message(Message::CriticalEvent);
-
-            // if(ui_move_ctrl.limit_dis_delay_count == 2) {
-            if(alarm == ExecAlarm::HardLimit) {
-                if(mks_ui_page.mks_ui_page != MKS_UI_TEST) {
-                    draw_global_popup("Hard limit!");
-                }
-                
-            }else if(alarm == ExecAlarm::SoftLimit) {
-                if(mks_ui_page.mks_ui_page != MKS_UI_TEST) {
-                    draw_global_popup("Soft limit!");
-                }
-            }
-            
-                // ui_move_ctrl.limit_dis_delay_count = 0;
-            // }
-            // ui_move_ctrl.limit_dis_delay_count++;
-            
-            // sys_rt_exec_state.bit.reset = false;  // Disable any existing reset
-            // do {  // mks limit disable
-            //     // Block everything, except reset and status reports, until user issues reset or power
-            //     // cycles. Hard limits typically occur while unattended or not paying attention. Gives
-            //     // the user and a GUI time to do what is needed before resetting, like killing the
-            //     // incoming stream. The same could be said about soft limits. While the position is not
-            //     // lost, continued streaming could cause a serious crash if by chance it gets executed.
-            // } while (!sys_rt_exec_state.bit.reset);
+            report_feedback_message(Message::CriticalEvent);
+            sys_rt_exec_state.bit.reset = false;  // Disable any existing reset
+            do {
+                // Block everything, except reset and status reports, until user issues reset or power
+                // cycles. Hard limits typically occur while unattended or not paying attention. Gives
+                // the user and a GUI time to do what is needed before resetting, like killing the
+                // incoming stream. The same could be said about soft limits. While the position is not
+                // lost, continued streaming could cause a serious crash if by chance it gets executed.
+            } while (!sys_rt_exec_state.bit.reset);
         }
         sys_rt_exec_alarm = ExecAlarm::None;
     }
@@ -479,7 +379,7 @@ void protocol_exec_rt_system() {
                 // Resume door state when parking motion has retracted and door has been closed.
                 if (sys.state == State::SafetyDoor && !(sys.suspend.bit.safetyDoorAjar)) {
                     if (sys.suspend.bit.restoreComplete) {
-                        sys.state = State::Idle;  // Set to IDLE to immediately resume the cycle. 
+                        sys.state = State::Idle;  // Set to IDLE to immediately resume the cycle.
                     } else if (sys.suspend.bit.retractComplete) {
                         // Flag to re-energize powered components and restore original position, if disabled by SAFETY_DOOR.
                         // NOTE: For a safety door to resume, the switch must be closed, as indicated by HOLD state, and
@@ -503,7 +403,7 @@ void protocol_exec_rt_system() {
                             st_wake_up();
                         } else {                    // Otherwise, do nothing. Set and resume IDLE state.
                             sys.suspend.value = 0;  // Break suspend state.
-                            sys.state         = State::Idle; 
+                            sys.state         = State::Idle;
                         }
                     }
                 }

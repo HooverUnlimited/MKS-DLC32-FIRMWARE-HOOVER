@@ -21,6 +21,7 @@
 */
 
 #include "stdint.h"
+#include "Grbl.h"
 
 #ifndef RX_BUFFER_SIZE
 #    define RX_BUFFER_SIZE 256
@@ -32,6 +33,8 @@
 #        define TX_BUFFER_SIZE 104
 #    endif
 #endif
+
+
 
 // a task to read for incoming data from serial port
 void clientCheckTask(void* pvParameters);
@@ -52,7 +55,6 @@ uint8_t client_get_rx_buffer_available(uint8_t client);
 
 void execute_realtime_command(Cmd command, uint8_t client);
 bool is_realtime_command(uint8_t data);
-
-// mks
-void serila_write_into_buffer(uint8_t *data);
-void serial_web_input_into_buffer(uint8_t *data);
+void mks_serial_write_into_buffer(uint8_t *data);
+void mks_serial_web_input_into_buffer(uint8_t *data);
+void mks_serial_web_input_into_hex(uint8_t c);

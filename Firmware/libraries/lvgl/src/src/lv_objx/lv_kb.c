@@ -13,7 +13,8 @@
 #include "../lv_core/lv_debug.h"
 #include "../lv_themes/lv_theme.h"
 #include "lv_ta.h"
-#include "../../../Grbl_Esp32/src/Machines/i2s_out_xyz_mks_dlc32.h"
+
+
 /*********************
  *      DEFINES
  *********************/

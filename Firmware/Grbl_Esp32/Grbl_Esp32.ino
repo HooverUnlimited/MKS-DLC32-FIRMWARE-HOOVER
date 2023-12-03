@@ -19,15 +19,16 @@
 */
 
 #include "src/Grbl.h"
+#include "src/mks/init.h"
 
 void setup() {
     grbl_init();
 }
 
 void loop() {
-  _mc_task_init(); // This calls the start loop for MakerBase 
-  
-  while(1) {
-    run_once();
-  }
+    mks_task_init();
+
+    while(1) {
+      run_once();
+    }
 }

@@ -11,7 +11,7 @@ void mks_powerless_init(void) {
 }
 
 void mks_powerless_check(void) {
-    powerless.is_pl_flag = sd_file_check(PL_FILE_PATG);
+    powerless.is_pl_flag = false; // sd_file_check(PL_FILE_PATG);
 
     if(powerless.is_pl_flag == true) {
         grbl_send(CLIENT_SERIAL,"PLA file had found\n");
@@ -25,7 +25,7 @@ void sd_read_line_num_change() {
 
     if(powerless.is_pl_flag == true) {
 
-        sd_current_line_number = powerless.file_line;
+       // sd_current_line_number = powerless.file_line;
 
     }else {
 

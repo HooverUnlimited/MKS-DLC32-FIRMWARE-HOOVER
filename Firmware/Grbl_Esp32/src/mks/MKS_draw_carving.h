@@ -2,6 +2,9 @@
 #define __MKS_draw_carving_h
 
 #include "MKS_draw_lvgl.h"
+#include "MKS_LVGL.h"
+#include "FS.h"
+#include "../SDCard.h"
 
 extern char file0_name[40];
 extern char file1_name[40];

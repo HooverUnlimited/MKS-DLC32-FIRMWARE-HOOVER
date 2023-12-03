@@ -318,7 +318,7 @@ void mks_run_frame(char *parameter) {
     lv_refr_now(lv_refr_get_disp_refreshing()); 
 
     MKS_GRBL_CMD_SEND("M3 S5\n");
-
+ 
     sprintf(frame_cmd, "G0 X%f Y%f 300\n",frame_ctrl.x_min, frame_ctrl.y_min); // point 0
     MKS_GRBL_CMD_SEND(frame_cmd);
     grbl_send(CLIENT_SERIAL ,frame_cmd);
@@ -373,6 +373,7 @@ void frame_run(bool is_lb) {
         MKS_GRBL_CMD_SEND("G0 X0 Y0 F300\n");
     }else {
         MKS_GRBL_CMD_SEND("M3 S5\n");
+        
         // MKS_GRBL_CMD_SEND("G91\n");
         sprintf(frame_cmd, "G0 X%f Y%f 300\n",frame_ctrl.x_min, frame_ctrl.y_min); // point 0
         MKS_GRBL_CMD_SEND(frame_cmd);
