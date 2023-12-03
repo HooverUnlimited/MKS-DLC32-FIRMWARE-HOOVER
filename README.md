@@ -1,4 +1,7 @@
 # MKS-DLC32-FIRMWARE
+I'm going to try and make this work on my recently purched CNC.
+
+# MKS-DLC32-FIRMWARE
 The source code of MKS DLC32.
 
 ## Environment construction:
